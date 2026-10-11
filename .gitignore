@@ -1,0 +1,31 @@
+node_modules/
+dist/
+build/
+
+# Secrets — never commit. config.js loads ./.env then ./server/.env as an
+# override, so both locations matter. Block every variant so a stray
+# .env.production or deploy.env can never be picked up.
+.env
+.env.*
+*.env
+!.env.example
+
+*.log
+npm-debug.log*
+
+# Runtime data
+server/data/
+server/uploads/
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

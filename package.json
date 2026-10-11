@@ -1,0 +1,19 @@
+{
+  "name": "tourism-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sri Lanka <-> Italy tourism platform: public site, API, and admin dashboard",
+  "scripts": {
+    "setup": "npm install --prefix server && npm install --prefix client",
+    "dev": "node scripts/dev.js",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "seed": "npm run seed --prefix server",
+    "build": "npm run build --prefix client",
+    "start": "npm start --prefix server",
+    "test": "npm test --prefix server"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  }
+}
