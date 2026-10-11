@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Sri Lanka ↔ Italy Tourism
 
 A production-oriented tourism platform for a business offering tourism services
@@ -250,3 +251,7 @@ all sit behind `@media (prefers-reduced-motion: reduce)`.
 tags via `useSeo`, backed by `GET /api/public/seo?path=`. This is a
 client-rendered SPA — full crawler indexing of deep links would need a
 prerender step or SSR, which is noted in the source rather than glossed over.
+=======
+# tourism-platform
+tourism-platform
+>>>>>>> 3e9a7d3a2a1c96c6d32aa6f5d7aeccf23c64aa73
