@@ -72,7 +72,7 @@ router.post(
     let pkg = null;
     if (body.package_slug) {
       pkg = db
-        .prepare("SELECT id, title, direction FROM packages WHERE slug = ? AND published = 1")
+        .prepare('SELECT id, title, direction FROM packages WHERE slug = ? AND published = 1 AND archived = 0')
         .get(body.package_slug);
       if (!pkg) throw badRequest('That package is no longer available.', { package_slug: 'Unknown package.' });
     }

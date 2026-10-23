@@ -12,10 +12,46 @@ const DIRECTIONS = [
   { value: 'BOTH', label: 'Both directions' },
 ];
 
+const DURATIONS = [
+  { value: '', label: 'Any length' },
+  { value: 'short', label: 'Up to 7 days' },
+  { value: 'medium', label: '8–10 days' },
+  { value: 'long', label: '11+ days' },
+];
+
+// Budget buckets compare price-from numbers (no currency conversion) —
+// a quick marketing filter, not an FX-aware query.
+const BUDGETS = [
+  { value: '', label: 'Any budget' },
+  { value: 'value', label: 'Under 1,000' },
+  { value: 'standard', label: '1,000–1,800' },
+  { value: 'premium', label: 'Over 1,800' },
+];
+
+function FilterRow({ label, options, value, onChange }) {
+  return (
+    <div className="row" style={{ marginTop: '0.7rem', gap: '0.45rem', flexWrap: 'wrap' }} role="group" aria-label={label}>
+      {options.map((o) => (
+        <button
+          key={o.value || 'any'}
+          type="button"
+          className={`btn btn--sm ${value === o.value ? '' : 'btn--outline'}`}
+          aria-pressed={value === o.value}
+          onClick={() => onChange(o.value)}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function Packages() {
   const [searchParams, setSearchParams] = useSearchParams();
   const direction = searchParams.get('direction') || '';
   const destinationSlug = searchParams.get('destination') || '';
+  const duration = searchParams.get('duration') || '';
+  const budget = searchParams.get('budget') || '';
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +76,8 @@ export default function Packages() {
       try {
         const params = new URLSearchParams();
         if (direction) params.set('direction', direction);
+        if (duration) params.set('duration', duration);
+        if (budget) params.set('budget', budget);
         if (debounced) params.set('q', debounced);
 
         // Resolve a destination slug (linked from a destination page) to the
@@ -67,14 +105,16 @@ export default function Packages() {
     return () => {
       cancelled = true;
     };
-  }, [direction, destinationSlug, debounced]);
+  }, [direction, destinationSlug, duration, budget, debounced]);
 
-  const setDirection = (value) => {
+  const setParam = (key, value) => {
     const next = new URLSearchParams(searchParams);
-    if (value) next.set('direction', value);
-    else next.delete('direction');
+    if (value) next.set(key, value);
+    else next.delete(key);
     setSearchParams(next, { replace: true });
   };
+
+  const hasFilters = Boolean(direction || destinationSlug || duration || budget || debounced);
 
   return (
     <div className="page-enter">
@@ -90,19 +130,9 @@ export default function Packages() {
           </Reveal>
 
           <Reveal delay={90} style={{ marginTop: '1.6rem' }}>
-            <div className="row" role="group" aria-label="Filter by direction">
-              {DIRECTIONS.map((d) => (
-                <button
-                  key={d.value || 'all'}
-                  type="button"
-                  className={`btn btn--sm ${direction === d.value ? '' : 'btn--outline'}`}
-                  aria-pressed={direction === d.value}
-                  onClick={() => setDirection(d.value)}
-                >
-                  {d.label}
-                </button>
-              ))}
-            </div>
+            <FilterRow label="Filter by direction" options={DIRECTIONS} value={direction} onChange={(v) => setParam('direction', v)} />
+            <FilterRow label="Filter by duration" options={DURATIONS} value={duration} onChange={(v) => setParam('duration', v)} />
+            <FilterRow label="Filter by budget" options={BUDGETS} value={budget} onChange={(v) => setParam('budget', v)} />
 
             <div className="row" style={{ marginTop: '0.9rem' }}>
               <label className="sr-only" htmlFor="pkg-search">
@@ -121,11 +151,7 @@ export default function Packages() {
                 <button
                   type="button"
                   className="btn btn--outline btn--sm"
-                  onClick={() => {
-                    const next = new URLSearchParams(searchParams);
-                    next.delete('destination');
-                    setSearchParams(next, { replace: true });
-                  }}
+                  onClick={() => setParam('destination', '')}
                 >
                   Clear destination filter ✕
                 </button>
@@ -166,7 +192,7 @@ export default function Packages() {
                 style={{ marginTop: '1.2rem' }}
                 onClick={() => {
                   setQuery('');
-                  setDirection('');
+                  setSearchParams({}, { replace: true });
                 }}
               >
                 Reset filters
@@ -175,13 +201,20 @@ export default function Packages() {
           )}
 
           {!loading && !error && items.length > 0 && (
-            <div className="grid grid--3">
-              {items.map((p, i) => (
-                <Reveal key={p.id || p.slug} delay={(i % 3) * 70}>
-                  <PackageCard pkg={p} />
-                </Reveal>
-              ))}
-            </div>
+            <>
+              {hasFilters && (
+                <p className="muted" style={{ fontSize: '0.9rem', marginBottom: '1rem' }} aria-live="polite">
+                  {items.length} {items.length === 1 ? 'tour' : 'tours'} found
+                </p>
+              )}
+              <div className="grid grid--3">
+                {items.map((p, i) => (
+                  <Reveal key={p.id || p.slug} delay={(i % 3) * 70}>
+                    <PackageCard pkg={p} />
+                  </Reveal>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </section>

@@ -52,8 +52,12 @@ const config = {
   serverDir,
   rootDir,
 
-  // Used to build absolute URLs (OG images, uploaded media) in responses.
-  publicApiUrl: str('PUBLIC_API_URL', `http://localhost:${int('PORT', 4000)}`).replace(/\/+$/, ''),
+  // Absolute origin advertised for canonical/OG URLs and in the bootstrap
+  // payload. Set PUBLIC_API_URL on the host to pin it. When it is NOT set,
+  // routers/public.js derives the origin from the request Host header
+  // instead of falling back to localhost, so a visitor or crawler is never
+  // handed an address that only works on the developer's machine.
+  publicApiUrl: str('PUBLIC_API_URL', '').replace(/\/+$/, ''),
   clientOrigins: list('CLIENT_ORIGINS', ['http://localhost:5173', 'http://127.0.0.1:5173']),
 
   db: {

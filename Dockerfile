@@ -20,4 +20,9 @@ ENV PORT=4000
 
 EXPOSE 4000
 
+# `npm start` (root) runs `npm run seed` first, then boots the API.
+# The repo carries no database — server/data/ is gitignored — so a fresh
+# container always starts empty. Seed is idempotent: it creates the admin,
+# missing settings and the sample catalogue ONLY when they are absent, and
+# never touches bookings, inquiries or any existing row.
 CMD ["npm", "start"]

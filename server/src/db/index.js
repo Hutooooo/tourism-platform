@@ -16,6 +16,44 @@ const schemaPath = path.join(__dirname, 'schema.sql');
 db.exec(fs.readFileSync(schemaPath, 'utf8'));
 
 /**
+ * Additive column migration. schema.sql uses CREATE TABLE IF NOT EXISTS, so
+ * tables created by older builds never gain new columns on re-boot. This
+ * ensures the columns the current code expects exist, using only
+ * ALTER TABLE ADD COLUMN (never DROP/RENAME) so existing rows — including
+ * bookings, inquiries and settings — are untouched.
+ */
+const PACKAGE_COLUMN_DEFS = [
+  ['duration_nights', 'INTEGER'],
+  ['destinations_list', "TEXT NOT NULL DEFAULT '[]'"],
+  ['price_max', 'REAL'],
+  ['pricing_status', "TEXT NOT NULL DEFAULT 'indicative'"],
+  ['pricing_basis', "TEXT NOT NULL DEFAULT 'per_person'"],
+  ['occupancy_note', 'TEXT'],
+  ['accommodation', 'TEXT'],
+  ['accommodation_category', 'TEXT'],
+  ['add_ons', "TEXT NOT NULL DEFAULT '[]'"],
+  ['group_size_min', 'INTEGER'],
+  ['group_size_max', 'INTEGER'],
+  ['seasonal_notes', 'TEXT'],
+  ['lead_time', 'TEXT'],
+  ['cancellation_policy', 'TEXT'],
+  ['seo_title', 'TEXT'],
+  ['seo_description', 'TEXT'],
+  ['disclaimer', 'TEXT'],
+  ['archived', 'INTEGER NOT NULL DEFAULT 0'],
+];
+
+function ensureColumns(table, defs) {
+  const have = new Set(db.pragma(`table_info(${table})`).map((c) => c.name));
+  for (const [name, ddl] of defs) {
+    if (!have.has(name)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${name} ${ddl}`);
+  }
+}
+ensureColumns('packages', PACKAGE_COLUMN_DEFS);
+// Safe to index archived only once the column is guaranteed to exist.
+db.exec('CREATE INDEX IF NOT EXISTS idx_pkg_arch ON packages(archived, published)');
+
+/**
  * Run a function inside a transaction. Nested calls reuse the outer
  * transaction (better-sqlite3 handles this via SAVEPOINT), so services can
  * compose safely.

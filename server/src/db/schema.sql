@@ -51,15 +51,33 @@ CREATE TABLE IF NOT EXISTS packages (
   summary        TEXT,
   description    TEXT,
   duration_days  INTEGER,
+  duration_nights INTEGER,
+  destinations_list TEXT NOT NULL DEFAULT '[]',
   price_from     REAL,
+  price_max      REAL,
   currency       TEXT    NOT NULL DEFAULT 'EUR',
+  pricing_status TEXT    NOT NULL DEFAULT 'indicative',
+  pricing_basis  TEXT    NOT NULL DEFAULT 'per_person',
+  occupancy_note TEXT,
+  accommodation  TEXT,
+  accommodation_category TEXT,
   itinerary      TEXT NOT NULL DEFAULT '[]',
   includes       TEXT NOT NULL DEFAULT '[]',
   excludes       TEXT NOT NULL DEFAULT '[]',
+  add_ons        TEXT NOT NULL DEFAULT '[]',
   image_url      TEXT,
   gallery        TEXT NOT NULL DEFAULT '[]',
+  group_size_min INTEGER,
+  group_size_max INTEGER,
+  seasonal_notes TEXT,
+  lead_time      TEXT,
+  cancellation_policy TEXT,
+  seo_title      TEXT,
+  seo_description TEXT,
+  disclaimer     TEXT,
   featured       INTEGER NOT NULL DEFAULT 0,
   published      INTEGER NOT NULL DEFAULT 1,
+  archived       INTEGER NOT NULL DEFAULT 0,
   sort_order     INTEGER NOT NULL DEFAULT 0,
   created_at     TEXT    NOT NULL DEFAULT (datetime('now')),
   updated_at     TEXT    NOT NULL DEFAULT (datetime('now'))
@@ -67,6 +85,8 @@ CREATE TABLE IF NOT EXISTS packages (
 CREATE INDEX IF NOT EXISTS idx_pkg_dir  ON packages(direction, published);
 CREATE INDEX IF NOT EXISTS idx_pkg_dest ON packages(destination_id);
 CREATE INDEX IF NOT EXISTS idx_pkg_sort ON packages(sort_order, id);
+-- idx_pkg_arch is created in index.js after ensureColumns, so older
+-- databases gain the archived column before the index references it.
 
 CREATE TABLE IF NOT EXISTS inquiries (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,

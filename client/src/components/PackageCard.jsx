@@ -8,6 +8,12 @@ const DIRECTION_LABEL = {
   BOTH: 'Both directions',
 };
 
+const PRICING_STATUS_CHIP = {
+  supplier_verified: { className: 'badge--confirmed', label: 'Verified' },
+  unavailable: { className: 'badge--declined', label: 'Temporarily unavailable' },
+  indicative: { className: 'badge--pending', label: 'Estimate' },
+};
+
 function formatPrice(price, currency) {
   if (price === null || price === undefined || price === '') return null;
   const n = Number(price);
@@ -25,11 +31,20 @@ function formatPrice(price, currency) {
   }
 }
 
-export { DIRECTION_LABEL, formatPrice };
+function formatPriceRange(pkg) {
+  const min = formatPrice(pkg.price_from, pkg.currency);
+  if (!min) return null;
+  const max = formatPrice(pkg.price_max, pkg.currency);
+  return max ? `${min} – ${max}` : min;
+}
+
+export { DIRECTION_LABEL, formatPrice, formatPriceRange };
 
 export default function PackageCard({ pkg }) {
   const img = mediaUrl(pkg.image_url);
-  const price = formatPrice(pkg.price_from, pkg.currency);
+  const priceRange = formatPriceRange(pkg);
+  const cities = (pkg.destinations_list || []).slice(0, 3);
+  const chip = PRICING_STATUS_CHIP[pkg.pricing_status];
 
   return (
     <article className="card">
@@ -49,11 +64,17 @@ export default function PackageCard({ pkg }) {
             {pkg.duration_days ? (
               <span>
                 <strong>{pkg.duration_days}</strong> days
+                {pkg.duration_nights != null ? ` / ${pkg.duration_nights} nights` : ''}
               </span>
             ) : null}
-            {pkg.destination_name && <span>{pkg.destination_name}</span>}
-            {price && <span className="card__price">from {price}</span>}
+            {cities.length > 0 ? <span>{cities.join(', ')}</span> : pkg.destination_name ? <span>{pkg.destination_name}</span> : null}
+            {priceRange && <span className="card__price">{priceRange}</span>}
           </div>
+          {chip && (
+            <span className={`badge ${chip.className}`} style={{ marginTop: '0.55rem', display: 'inline-block' }}>
+              {chip.label}
+            </span>
+          )}
         </div>
       </Link>
     </article>

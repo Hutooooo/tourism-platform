@@ -36,6 +36,7 @@ const PUBLIC_KEYS = [
   'currency',
   'booking_enabled',
   'inquiry_enabled',
+  'pricing_disclaimer',
   'footer_note',
 ];
 
@@ -58,6 +59,7 @@ const WRITABLE = {
   currency: 'string',
   booking_enabled: 'boolean',
   inquiry_enabled: 'boolean',
+  pricing_disclaimer: 'string',
   footer_note: 'string',
 };
 
@@ -71,7 +73,8 @@ function checkValue(key, value) {
 
   if (expected === 'string') {
     if (typeof value !== 'string') return 'Must be text.';
-    if (value.trim().length > 5000) return 'Too long.';
+    const cap = key === 'pricing_disclaimer' ? 12000 : 5000;
+    if (value.trim().length > cap) return 'Too long.';
     const trimmed = value.trim();
     if (key === 'brand_name' && trimmed.length < 2) return 'Brand name is too short.';
     if (key === 'contact_email' && trimmed !== '' && !emailRule().pattern.test(trimmed)) {

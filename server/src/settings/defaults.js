@@ -38,6 +38,9 @@ const DEFAULT_SETTINGS = {
   booking_enabled: true,
   inquiry_enabled: true,
 
+  pricing_disclaimer:
+    'Prices are indicative estimates and may change according to travel dates, seasonality, accommodation availability, airline fares, exchange rates, group size, transport costs, taxes, supplier rates, and itinerary changes. Unless expressly listed as included, international flights, visa or travel authorization fees, travel insurance, personal expenses, optional excursions, and unspecified services are excluded. A final quotation and availability must be confirmed before booking. A booking is not confirmed until the itinerary, price, payment terms, and cancellation conditions have been agreed.',
+
   footer_note: 'Tourism services between Sri Lanka and Italy.',
 };
 

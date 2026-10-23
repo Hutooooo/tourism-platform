@@ -33,6 +33,7 @@ const EMPTY = {
   currency: 'EUR',
   booking_enabled: true,
   inquiry_enabled: true,
+  pricing_disclaimer: '',
   footer_note: '',
 };
 
@@ -55,6 +56,7 @@ function toForm(settings) {
     currency: settings.currency ?? 'EUR',
     booking_enabled: settings.booking_enabled !== false,
     inquiry_enabled: settings.inquiry_enabled !== false,
+    pricing_disclaimer: settings.pricing_disclaimer ?? '',
     footer_note: settings.footer_note ?? '',
   };
 }
@@ -82,6 +84,7 @@ function toPayload(form) {
     currency: form.currency,
     booking_enabled: form.booking_enabled,
     inquiry_enabled: form.inquiry_enabled,
+    pricing_disclaimer: form.pricing_disclaimer,
     footer_note: form.footer_note,
   };
 }
@@ -336,6 +339,25 @@ export default function SettingsPage() {
               error={fieldErrors.footer_note}
               maxLength={300}
               rows={2}
+            />
+          </div>
+        </section>
+
+        <section className="card" style={{ marginBottom: 'clamp(20px, 2.5vw, 30px)' }}>
+          <div className="card__body" style={{ padding: 'clamp(20px, 3vw, 30px)' }}>
+            <h2 style={{ fontSize: '1.25rem', marginBottom: '0.3rem' }}>Pricing disclaimer</h2>
+            <p className="muted" style={{ fontSize: '0.9rem', marginBottom: '1.2rem' }}>
+              Shown on package pages wherever a package has no custom override. Packages can
+              override this individually from the package editor.
+            </p>
+            <TextArea
+              id="s-pricing-disclaimer"
+              label="Site-wide pricing disclaimer"
+              value={form.pricing_disclaimer}
+              onChange={set('pricing_disclaimer')}
+              error={fieldErrors.pricing_disclaimer}
+              maxLength={12000}
+              rows={6}
             />
           </div>
         </section>

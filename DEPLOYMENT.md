@@ -293,3 +293,117 @@ Anyone with access to your Render account can reveal it — that account is the 
 
 The start command runs `npm run seed` before `npm start`. Seed is idempotent: it will not overwrite an existing admin, existing settings, or existing destinations/packages. It does create the admin row from `ADMIN_EMAIL` / `ADMIN_PASSWORD` when no such account exists yet, which on the free plan happens after every restart.
 
+---
+
+## Railway (Dockerfile)
+
+`railway.json` builds with `builder: DOCKERFILE`. Railway builds **from the
+connected GitHub repo**, not from your working copy — local edits do nothing
+until they are committed and pushed.
+
+| | |
+|---|---|
+| Builder | `Dockerfile` (`node:22-bookworm-slim`, python3/make/g++ for better-sqlite3) |
+| Build | `npm install --prefix server`, `npm install --prefix client --include=dev`, then `npm run build` → `client/dist` |
+| Start | `npm start` → runs `npm run seed`, then boots Express |
+| Served from | Express serves `client/dist` and `/api` from one process |
+| Health check | `GET /api/health` |
+
+### Why seeding happens inside `npm start`
+
+`server/data/` is gitignored, so **the repository contains no database**. A
+fresh container therefore boots with an empty schema. `npm start` at the repo
+root runs `npm run seed` first, which is idempotent:
+
+- creates the admin row only if that email does not exist;
+- writes only settings that are missing (including the site-wide pricing
+  disclaimer, added with the editable package catalog);
+- inserts sample **destinations** only when that table is empty;
+- inserts sample **packages** slug-if-missing: a package is added only when a
+  row with its slug does not exist yet, so an existing database gains any
+  sample package it lacks (e.g. the six USD catalog tours) without touching
+  admin edits to packages that are already there;
+- never reads, writes or deletes bookings or inquiries.
+
+So a fresh container gets a populated catalogue, and a container that already
+has content (or a volume with real data) is left completely untouched.
+
+### Schema upgrades on an existing database
+
+The packages table gained columns for the editable catalog (price range,
+nights, city list, pricing status/basis, add-ons, SEO, per-package disclaimer,
+`archived`, etc.). There is no migration framework: `schema.sql` only runs
+`CREATE TABLE IF NOT EXISTS`, so an already-deployed database would never gain
+the new columns on its own. At boot, after the schema is applied, the server
+compares `PRAGMA table_info(packages)` against the expected columns and issues
+`ALTER TABLE packages ADD COLUMN …` for each one that is missing (existing
+rows pick up the column defaults). This only ever **adds** columns — it never
+drops, renames or rewrites rows, so bookings, inquiries, users, settings and
+media are untouched. No manual migration step is required; redeploying is
+enough.
+
+### Environment variables
+
+Set these in the Railway service **Variables** tab:
+
+| Key | Value |
+|---|---|
+| `NODE_ENV` | `production` (already set in the Dockerfile) |
+| `JWT_SECRET` | long random hex — **required**, boot throws without it |
+| `REFRESH_JWT_SECRET` | a **different** long random hex |
+| `ADMIN_EMAIL` | your admin email |
+| `ADMIN_PASSWORD` | strong password (used only when the admin row is first created) |
+| `PUBLIC_API_URL` | `https://ceylonitalia.up.railway.app` (optional but recommended) |
+
+Generate secrets:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+```
+
+`PUBLIC_API_URL` is optional: if unset, `/api/public/bootstrap` and the SEO
+route derive the origin from the request `Host` header, so they never advertise
+`localhost`. Setting it pins the origin if you later attach a custom domain.
+
+> **Set `ADMIN_EMAIL` / `ADMIN_PASSWORD` before the next deploy.** The deployed
+> database has no user rows yet, so the next start creates the admin from these
+> values. Left unset, it falls back to `admin@localhost.local` / `ChangeMe123!`.
+
+### Data persistence
+
+Without a **Volume**, everything lives on the container filesystem and is
+wiped on every deploy, restart and re-deploy. Seeding repopulates the sample
+catalogue each time, but **customer bookings and inquiries would be lost**.
+
+To keep data, attach a Railway Volume and point both paths at it:
+
+```bash
+DATABASE_FILE=/data/app.db
+UPLOAD_DIR=/data/uploads
+```
+
+Relative paths (the default) resolve against `server/`, i.e. `server/data/app.db`
+inside the container. Change **both** variables together — moving only one splits
+your data across persistent and ephemeral storage.
+
+### Deploy steps
+
+```bash
+cd "D:/claud ai shit"
+git add -A
+git status                      # confirm .env, server/data and uploads are absent
+git commit -m "Seed database on start and derive public origin from Host"
+git push origin main
+```
+
+Railway picks up the push, rebuilds the image and restarts. Then verify:
+
+```bash
+curl -s https://ceylonitalia.up.railway.app/api/health
+curl -s https://ceylonitalia.up.railway.app/api/public/bootstrap | head -c 400
+```
+
+Expect `"status":"ok"`, and `stats.destinations` / `stats.packages` above zero
+with `"baseUrl":"https://ceylonitalia.up.railway.app"`.
+
+

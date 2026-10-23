@@ -25,6 +25,24 @@ function parseJson(v, fallback) {
 }
 
 /**
+ * Absolute origin of this deployment, for canonical/OG URLs and the
+ * `api.baseUrl` field of the bootstrap payload.
+ *
+ * PUBLIC_API_URL wins when the host sets it. Otherwise derive it from the
+ * request rather than defaulting to localhost: the app does not know its own
+ * public hostname at boot, and advertising `http://localhost:8080` to a
+ * browser or crawler is never correct. `app.set('trust proxy', 1)` makes
+ * req.protocol follow X-Forwarded-Proto, so this is right behind Railway's
+ * TLS-terminating proxy.
+ */
+function publicOrigin(req) {
+  if (config.publicApiUrl) return config.publicApiUrl;
+  const host = req.get('host');
+  if (!host) return '';
+  return `${req.protocol}://${host}`;
+}
+
+/**
  * Normalise a phone/WhatsApp number into the forms the UI needs:
  * a display string, a tel: target and a wa.me target.
  */
@@ -72,13 +90,18 @@ router.get(
 
     const packages = db
       .prepare(
-        `SELECT id, slug, title, direction, summary, duration_days, price_from, currency,
+        `SELECT id, slug, title, direction, summary, duration_days, duration_nights,
+                destinations_list, price_from, price_max, currency, pricing_status,
                 image_url, featured, destination_id
-         FROM packages WHERE published = 1
+         FROM packages WHERE published = 1 AND archived = 0
          ORDER BY featured DESC, sort_order ASC, title ASC LIMIT 30`
       )
       .all()
-      .map((p) => ({ ...p, featured: !!p.featured }));
+      .map((p) => ({
+        ...p,
+        featured: !!p.featured,
+        destinations_list: parseJson(p.destinations_list, []),
+      }));
 
     const destinationsByCountry = {
       'Sri Lanka': destinations.filter((d) => d.country === 'Sri Lanka'),
@@ -101,6 +124,7 @@ router.get(
         currency: settings.currency,
         booking_enabled: settings.booking_enabled !== false,
         inquiry_enabled: settings.inquiry_enabled !== false,
+        pricing_disclaimer: settings.pricing_disclaimer,
         footer_note: settings.footer_note,
       },
       contact: links,
@@ -112,7 +136,7 @@ router.get(
         packages: packages.length,
         countries: 2,
       },
-      api: { baseUrl: config.publicApiUrl },
+      api: { baseUrl: publicOrigin(req) },
       serverTime: new Date().toISOString(),
     });
   })
@@ -150,10 +174,12 @@ router.get(
         description = row.summary || baseDescription;
       }
     } else if (segments[0] === 'packages' && segments[1]) {
-      const row = db.prepare('SELECT title, summary FROM packages WHERE slug = ?').get(segments[1]);
+      const row = db
+        .prepare('SELECT title, summary, seo_title, seo_description FROM packages WHERE slug = ?')
+        .get(segments[1]);
       if (row) {
-        title = `${row.title} — ${settings.brand_name}`;
-        description = row.summary || baseDescription;
+        title = `${row.seo_title || row.title} — ${settings.brand_name}`;
+        description = row.seo_description || row.summary || baseDescription;
       }
     } else if (segments.length === 0) {
       title = settings.brand_name;
@@ -175,7 +201,7 @@ router.get(
       title: fullTitle.slice(0, 300),
       description: String(description || '').slice(0, 320),
       keywords,
-      canonical: `${config.publicApiUrl}${path}`,
+      canonical: `${publicOrigin(req)}${path}`,
       og: {
         title: fullTitle.slice(0, 300),
         description: String(description || '').slice(0, 320),
