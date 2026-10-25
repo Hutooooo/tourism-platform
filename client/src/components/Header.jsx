@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useSettings } from '../context/SettingsContext';
+import i18n from '../i18n';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useScrolledPast } from '../hooks/useReveal';
 
 const LINKS = [
-  { to: '/', label: 'Home', end: true },
-  { to: '/destinations', label: 'Destinations' },
-  { to: '/packages', label: 'Tours' },
-  { to: '/about', label: 'About' },
-  { to: '/contact', label: 'Contact' },
+  { to: '/', label: t('nav.home'), end: true },
+  { to: '/destinations', label: t('nav.destinations') },
+  { to: '/packages', label: t('nav.tours') },
+  { to: '/about', label: t('nav.about') },
+  { to: '/contact', label: t('nav.contact') },
 ];
 
 export default function Header() {
   const { settings } = useSettings();
   const { isAuthenticated } = useAuth();
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const stuck = useScrolledPast(10);
   const location = useLocation();
@@ -85,6 +88,27 @@ export default function Header() {
               Admin
             </Link>
           )}
+          <div className="language-selector" style={{ display: 'flex', alignItems: 'center', marginRight: '1rem' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ marginRight: '0.5rem' }}>
+              <path d="M12 2a10 10 0 100 20 10 10 0 000-20zM2 12h20" stroke="currentColor" strokeWidth="2"/>
+            </svg>
+            <select
+              value={i18n.language}
+              onChange={(e) => {
+                const lang = e.target.value;
+                i18n.changeLanguage(lang);
+                localStorage.setItem('lang', lang);
+                // Update URL prefix while preserving the rest of the path
+                const newPath = '/' + lang + window.location.pathname.replace(/^\/(en|si|it)?/, '');
+                window.history.replaceState(null, '', newPath + window.location.search + window.location.hash);
+                document.documentElement.lang = lang;
+              }}
+            >
+              <option value="en">English</option>
+              <option value="si">සිංහල</option>
+              <option value="it">Italiano</option>
+            </select>
+          </div>
           <button
             type="button"
             className="nav-toggle"

@@ -21,7 +21,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <div className="footer__heading">Explore</div>
+            <div className="footer__heading">{t('footer.explore')}</div>
             <ul className="footer__list">
               <li><Link to="/destinations">Destinations</Link></li>
               <li><Link to="/packages">Tour packages</Link></li>

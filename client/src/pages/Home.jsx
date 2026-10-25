@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useSettings } from '../context/SettingsContext';
+import { useTranslation } from 'react-i18next';
 import { useSeo } from '../hooks/useSeo';
 import Reveal from '../components/Reveal';
 import DestinationCard from '../components/DestinationCard';
@@ -36,6 +36,7 @@ function RouteGraphic() {
 }
 
 export default function Home() {
+  const { t } = useTranslation();
   const { settings, destinations, packages, destinationsByCountry, stats } = useSettings();
 
   useSeo({
@@ -71,7 +72,7 @@ export default function Home() {
           </Reveal>
 
           <Reveal delay={80}>
-            <h1>{settings.hero_title || 'Two islands of wonder, one journey'}</h1>
+            <h1>{t('hero.title') || 'Two islands of wonder, one journey'}</h1>
           </Reveal>
 
           <Reveal delay={160}>
@@ -81,10 +82,12 @@ export default function Home() {
           <Reveal delay={240}>
             <div className="hero__actions">
               <Link to="/packages" className="btn btn--brass btn--lg">
-                Explore tours
+                {t('hero.ctaExplore')}
+
               </Link>
               <a href="#enquire" className="btn btn--ghost btn--lg">
-                Plan your trip
+                {t('hero.ctaPlan')}
+
               </a>
             </div>
           </Reveal>
