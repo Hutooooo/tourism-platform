@@ -41,7 +41,7 @@ function formatPriceRange(pkg) {
 export { DIRECTION_LABEL, formatPrice, formatPriceRange };
 
 export default function PackageCard({ pkg }) {
-  const img = mediaUrl(pkg.image_url);
+  const img = pkg.image_url;
   const priceRange = formatPriceRange(pkg);
   const cities = (pkg.destinations_list || []).slice(0, 3);
   const chip = PRICING_STATUS_CHIP[pkg.pricing_status];
