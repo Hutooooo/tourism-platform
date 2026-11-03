@@ -1,12 +1,11 @@
 import { Link } from 'react-router-dom';
 import { mediaUrl } from '../api/client';
 import { MediaPlaceholder } from './DestinationCard';
+import { useTranslation } from 'react-i18next';
+import { useDirectionLabels } from '../utils/directionLabels';
+import { formatPrice, formatPriceRange } from '../utils/priceFormat';
 
-const DIRECTION_LABEL = {
-  SL_TO_IT: 'Sri Lanka → Italy',
-  IT_TO_SL: 'Italy → Sri Lanka',
-  BOTH: 'Both directions',
-};
+export { formatPrice, formatPriceRange };
 
 const PRICING_STATUS_CHIP = {
   supplier_verified: { className: 'badge--confirmed', label: 'Verified' },
@@ -14,33 +13,10 @@ const PRICING_STATUS_CHIP = {
   indicative: { className: 'badge--pending', label: 'Estimate' },
 };
 
-function formatPrice(price, currency) {
-  if (price === null || price === undefined || price === '') return null;
-  const n = Number(price);
-  if (!Number.isFinite(n)) return null;
-  try {
-    // Whole amounts stay compact ("€1,200"); cents only appear when entered.
-    return new Intl.NumberFormat('en-IE', {
-      style: 'currency',
-      currency: currency || 'EUR',
-      minimumFractionDigits: Number.isInteger(n) ? 0 : 2,
-      maximumFractionDigits: 2,
-    }).format(n);
-  } catch {
-    return `${currency || 'EUR'} ${price}`;
-  }
-}
-
-function formatPriceRange(pkg) {
-  const min = formatPrice(pkg.price_from, pkg.currency);
-  if (!min) return null;
-  const max = formatPrice(pkg.price_max, pkg.currency);
-  return max ? `${min} – ${max}` : min;
-}
-
-export { DIRECTION_LABEL, formatPrice, formatPriceRange };
-
 export default function PackageCard({ pkg }) {
+  const { t } = useTranslation();
+  const DIRECTION_LABEL = useDirectionLabels();
+
   const img = pkg.image_url;
   const priceRange = formatPriceRange(pkg);
   const cities = (pkg.destinations_list || []).slice(0, 3);
@@ -55,7 +31,7 @@ export default function PackageCard({ pkg }) {
           ) : (
             <MediaPlaceholder label={pkg.title?.slice(0, 1)} />
           )}
-          <span className="card__badge">{DIRECTION_LABEL[pkg.direction] || 'Tour'}</span>
+          <span className="card__badge">{t(`direction.${pkg.direction}`) || 'Tour'}</span>
         </div>
         <div className="card__body">
           <h3 className="card__title">{pkg.title}</h3>
