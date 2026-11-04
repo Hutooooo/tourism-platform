@@ -1,14 +1,12 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useSettings } from '../context/SettingsContext';
-import { DIRECTION_LABEL } from './PackageCard';
+import { useDirectionLabels } from '../utils/directionLabels';
 
-/**
- * Footer with the supplied contact details rendered as real links:
- *   mailto:, tel:, and https://wa.me/ — all taken from persistent settings
- *   so an administrator can correct them without a redeploy.
- */
 export default function Footer() {
+  const { t } = useTranslation();
   const { settings, contact, stats } = useSettings();
+  const DIRECTION_LABEL = useDirectionLabels();
   const year = new Date().getFullYear();
 
   return (
@@ -23,15 +21,15 @@ export default function Footer() {
           <div>
             <div className="footer__heading">{t('footer.explore')}</div>
             <ul className="footer__list">
-              <li><Link to="/destinations">Destinations</Link></li>
-              <li><Link to="/packages">Tour packages</Link></li>
-              <li><Link to="/about">About us</Link></li>
+              <li><Link to="/destinations">{t('nav.destinations')}</Link></li>
+              <li><Link to="/packages">{t('nav.tours')}</Link></li>
+              <li><Link to="/about">{t('nav.about')}</Link></li>
               <li><Link to="/contact">Contact</Link></li>
             </ul>
           </div>
 
           <div>
-            <div className="footer__heading">Directions</div>
+            <div className="footer__heading">{t('footer.directions')}</div>
             <ul className="footer__list">
               {(settings.directions || []).map((d) => (
                 <li key={d}>{DIRECTION_LABEL[d]}</li>
@@ -43,7 +41,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <div className="footer__heading">Get in touch</div>
+            <div className="footer__heading">{t('footer.getInTouch')}</div>
             <ul className="footer__list footer__contact">
               {contact.email.href && (
                 <li>
