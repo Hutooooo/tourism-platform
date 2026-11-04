@@ -15,7 +15,6 @@ const PRICING_STATUS_CHIP = {
 
 export default function PackageCard({ pkg }) {
   const { t } = useTranslation();
-  const DIRECTION_LABEL = useDirectionLabels();
 
   const img = pkg.image_url;
   const priceRange = formatPriceRange(pkg);
