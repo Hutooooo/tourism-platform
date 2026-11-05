@@ -11,6 +11,7 @@ import Packages from './pages/Packages';
 import PackageDetail from './pages/PackageDetail';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import Journey from './pages/Journey';
 import NotFound from './pages/NotFound';
 
 import Login from './pages/admin/Login';
@@ -40,6 +41,7 @@ function SiteShell() {
           <Route path="/packages/:slug" element={<PackageDetail />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/journey" element={<Journey />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

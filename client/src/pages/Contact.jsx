@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { api } from '../api/client';
 import { useSettings } from '../context/SettingsContext';
 import { useSeo } from '../hooks/useSeo';
@@ -6,16 +8,10 @@ import Reveal from '../components/Reveal';
 import ContactTiles from '../components/ContactTiles';
 import { TextField, TextArea, SelectField, Alert } from '../components/FormField';
 
-const TYPE_OPTIONS = [
-  { value: 'general', label: 'General question' },
-  { value: 'custom-tour', label: 'Custom tour request' },
-  { value: 'partnership', label: 'Partnership' },
-  { value: 'other', label: 'Something else' },
-];
-
 const INITIAL = { name: '', email: '', phone: '', subject: '', type: 'general', message: '' };
 
 export default function Contact() {
+  const { t } = useTranslation();
   const { settings, contact } = useSettings();
   const [values, setValues] = useState(INITIAL);
   const [errors, setErrors] = useState({});
@@ -25,6 +21,13 @@ export default function Contact() {
   // Kept separately: the form is cleared on success, so the confirmation
   // would otherwise have no address to echo back.
   const [sentTo, setSentTo] = useState('');
+
+  const TYPE_OPTIONS = [
+    { value: 'general', label: t('contact.type.general') },
+    { value: 'custom-tour', label: t('contact.type.customTour') },
+    { value: 'partnership', label: t('contact.type.partnership') },
+    { value: 'other', label: t('contact.type.other') },
+  ];
 
   useSeo({
     title: 'Contact',
@@ -38,9 +41,9 @@ export default function Contact() {
 
   function validate() {
     const next = {};
-    if (!values.name.trim() || values.name.trim().length < 2) next.name = 'Please enter your name.';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(values.email.trim())) next.email = 'Enter a valid email address.';
-    if (values.message.trim().length < 10) next.message = 'Please write at least 10 characters.';
+    if (!values.name.trim() || values.name.trim().length < 2) next.name = t('validation.name');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(values.email.trim())) next.email = t('validation.email');
+    if (values.message.trim().length < 10) next.message = t('validation.message');
     if (values.phone.trim() && !/^\+?[0-9][0-9\s().-]{5,24}$/.test(values.phone.trim())) {
       next.phone = 'Enter a valid phone number, or leave it blank.';
     }
@@ -84,11 +87,10 @@ export default function Contact() {
       <section className="section section--tight section--warm">
         <div className="container">
           <Reveal>
-            <div className="eyebrow">Contact</div>
-            <h1>Talk to us</h1>
+            <div className="eyebrow">{t('contact.heading')}</div>
+            <h1>{t('contact.title')}</h1>
             <p className="lead" style={{ marginTop: '0.9rem' }}>
-              Email, telephone or WhatsApp — whichever suits you. We handle enquiries personally and
-              reply as quickly as we can.
+              {t('contact.lead')}
             </p>
           </Reveal>
         </div>
@@ -118,7 +120,7 @@ export default function Contact() {
                     <div className="form-grid">
                       <TextField
                         id="ct-name"
-                        label="Your name"
+                        label={t('contact.nameLabel')}
                         required
                         autoComplete="name"
                         value={values.name}
@@ -128,7 +130,7 @@ export default function Contact() {
                       />
                       <TextField
                         id="ct-email"
-                        label="Email"
+                        label={t('contact.emailLabel')}
                         type="email"
                         required
                         autoComplete="email"
@@ -142,7 +144,7 @@ export default function Contact() {
                     <div className="form-grid">
                       <TextField
                         id="ct-phone"
-                        label="Phone"
+                        label={t('contact.phoneLabel')}
                         type="tel"
                         autoComplete="tel"
                         placeholder="+39 …"
@@ -163,7 +165,7 @@ export default function Contact() {
 
                     <TextField
                       id="ct-subject"
-                      label="Subject"
+                      label={t('contact.subjectLabel')}
                       value={values.subject}
                       onChange={set('subject')}
                       error={errors.subject}
@@ -182,7 +184,7 @@ export default function Contact() {
                     />
 
                     <button type="submit" className="btn btn--lg btn--block" disabled={submitting}>
-                      {submitting ? 'Sending…' : 'Send message'}
+                      {submitting ? t('contact.sending') : t('contact.send') }
                     </button>
                   </form>
                 )}

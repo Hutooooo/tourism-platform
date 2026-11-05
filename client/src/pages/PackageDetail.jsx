@@ -6,7 +6,8 @@ import { useSeo } from '../hooks/useSeo';
 import Reveal from '../components/Reveal';
 import ContactTiles from '../components/ContactTiles';
 import { MediaPlaceholder } from '../components/DestinationCard';
-import { DIRECTION_LABEL, formatPrice, formatPriceRange } from '../components/PackageCard';
+import { useDirectionLabels } from '../utils/directionLabels';
+import { formatPrice, formatPriceRange } from '../utils/priceFormat';
 import BookingForm from '../components/BookingForm';
 
 const PRICING_STATUS_LABEL = {
@@ -38,6 +39,7 @@ export default function PackageDetail() {
   const [searchParams] = useSearchParams();
   const previewMode = searchParams.get('preview') === '1';
   const { settings } = useSettings();
+  const DIRECTION_LABEL = useDirectionLabels();
   const [item, setItem] = useState(null);
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState(null);

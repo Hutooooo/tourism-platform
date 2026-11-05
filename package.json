@@ -4,6 +4,7 @@
   "private": true,
   "description": "Sri Lanka <-> Italy tourism platform: public site, API, and admin dashboard",
   "scripts": {
+    "check-i18n": "node scripts/check-i18n.js",
     "setup": "npm install --prefix server && npm install --prefix client",
     "dev": "node scripts/dev.js",
     "dev:server": "npm run dev --prefix server",

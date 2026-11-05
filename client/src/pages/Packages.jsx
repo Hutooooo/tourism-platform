@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../api/client';
 import { useSeo } from '../hooks/useSeo';
 import Reveal from '../components/Reveal';
 import PackageCard from '../components/PackageCard';
 
+// DIRECTIONS should be defined inside the component or use strings so they don't break outside component render scope where `t` isn't available, or just use plain strings.
 const DIRECTIONS = [
   { value: '', label: 'All tours' },
   { value: 'SL_TO_IT', label: 'Sri Lanka → Italy' },
@@ -65,8 +67,8 @@ export default function Packages() {
   });
 
   useEffect(() => {
-    const t = setTimeout(() => setDebounced(query.trim()), 300);
-    return () => clearTimeout(t);
+    const debounceTimer = setTimeout(() => setDebounced(query.trim()), 300);
+    return () => clearTimeout(debounceTimer);
   }, [query]);
 
   useEffect(() => {

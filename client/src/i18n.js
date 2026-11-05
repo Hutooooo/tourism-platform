@@ -34,10 +34,15 @@ i18n
   .use(languageDetector)
   .use(initReactI18next)
   .init({
-    resources: { en, si, it },
+    resources: {
+      en: { translation: en },
+      si: { translation: si },
+      it: { translation: it },
+    },
     fallbackLng: 'en',
     interpolation: { escapeValue: false },
-    debug: false,
+    ns: ['translation'],
+    defaultNS: 'translation',
     detection: { order: ['customDetector'], caches: [] },
   })
   .catch((e) => console.error('i18n init error:', e));

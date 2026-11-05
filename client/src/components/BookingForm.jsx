@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
 import { TextField, TextArea, SelectField, Alert } from './FormField';
 
@@ -19,12 +20,12 @@ const INITIAL = {
   notes: '',
 };
 
-/**
- * Public booking-request form. Submits to POST /api/bookings, which is
- * rate-limited server-side. On success the form is replaced by a
+/** Public booking-request form. Submits to POST /api/bookings, which is
+ * rate‑limited server‑side. On success the form is replaced by a
  * confirmation showing the reference number.
  */
 export default function BookingForm({ packageSlug, direction: fixedDirection, travellersHint = 1 }) {
+  const { t } = useTranslation();
   const [values, setValues] = useState(() => ({
     ...INITIAL,
     direction: fixedDirection || '',
@@ -41,19 +42,19 @@ export default function BookingForm({ packageSlug, direction: fixedDirection, tr
     setErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev));
   };
 
-  /** Client-side checks mirroring the server rules, for instant feedback. */
+  /** Client‑side checks mirroring the server rules, for instant feedback. */
   function validate() {
     const next = {};
-    if (!values.name.trim() || values.name.trim().length < 2) next.name = 'Please enter your name.';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(values.email.trim())) next.email = 'Enter a valid email address.';
+    if (!values.name.trim() || values.name.trim().length < 2) next.name = t('validation.name');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(values.email.trim())) next.email = t('validation.email');
     if (values.phone.trim() && !/^\+?[0-9][0-9\s().-]{5,24}$/.test(values.phone.trim())) {
-      next.phone = 'Enter a valid phone number, or leave it blank.';
+      next.phone = t('validation.phone');
     }
     if (values.travel_date && !/^\d{4}-\d{2}-\d{2}$/.test(values.travel_date)) {
-      next.travel_date = 'Use the format YYYY-MM-DD.';
+      next.travel_date = t('validation.travelDate');
     }
-    if (Number(values.adults) < 1) next.adults = 'At least one adult.';
-    if (Number(values.children) < 0) next.children = 'Cannot be negative.';
+    if (Number(values.adults) < 1) next.adults = t('validation.adults');
+    if (Number(values.children) < 0) next.children = t('validation.children');
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -81,7 +82,6 @@ export default function BookingForm({ packageSlug, direction: fixedDirection, tr
       const data = await api.postPublic('/bookings', payload);
       setConfirmation(data);
     } catch (err) {
-      // Surface field-level errors returned by the API.
       if (err.details && typeof err.details === 'object') {
         setErrors(err.details);
         const first = Object.values(err.details)[0];
@@ -98,8 +98,7 @@ export default function BookingForm({ packageSlug, direction: fixedDirection, tr
     return (
       <div className="alert alert--success" role="status">
         <strong style={{ display: 'block', marginBottom: '0.35rem' }}>Request received — thank you.</strong>
-        Your reference is <strong>{confirmation.reference}</strong>. We will reply to{' '}
-        {values.email} with availability and next steps.
+        Your reference is <strong>{confirmation.reference}</strong>. We will reply to {values.email} with availability and next steps.
       </div>
     );
   }
@@ -137,7 +136,7 @@ export default function BookingForm({ packageSlug, direction: fixedDirection, tr
           label="Phone"
           type="tel"
           autoComplete="tel"
-          placeholder="+39 …"
+          placeholder={t('contact.phoneInvalid')}
           value={values.phone}
           onChange={set('phone')}
           error={errors.phone}
@@ -184,7 +183,7 @@ export default function BookingForm({ packageSlug, direction: fixedDirection, tr
           value={values.direction}
           onChange={set('direction')}
           options={DIRECTION_OPTIONS}
-          placeholder="Choose a direction"
+          placeholder={t('validation.directionPlaceholder')}
           error={errors.direction}
         />
       )}
@@ -202,13 +201,11 @@ export default function BookingForm({ packageSlug, direction: fixedDirection, tr
       <button type="submit" className="btn btn--block btn--lg" disabled={submitting}>
         {submitting ? (
           <>
-            <span className="spin" aria-hidden="true" style={{ display: 'inline-block' }}>
-              ⟳
-            </span>
-            Sending…
+            <span className="spin" aria-hidden="true" style={{ display: 'inline-block' }}>⟳</span>
+            {t('contact.sending') || 'Sending…'}
           </>
         ) : (
-          'Send booking request'
+          t('booking.sendButton')
         )}
       </button>
 

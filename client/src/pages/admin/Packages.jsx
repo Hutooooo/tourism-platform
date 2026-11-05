@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api, mediaUrl } from '../../api/client';
 import { useSeo } from '../../hooks/useSeo';
 import { TextField, TextArea, SelectField, Alert } from '../../components/FormField';
@@ -121,6 +122,7 @@ function SectionTitle({ children }) {
 }
 
 export default function PackagesAdmin() {
+  const { t } = useTranslation();
   useSeo({ title: 'Packages — Dashboard' });
 
   const [items, setItems] = useState([]);
@@ -215,7 +217,7 @@ export default function PackagesAdmin() {
   function validate() {
     const errs = {};
     if (!form.title.trim() || form.title.trim().length < 3) errs.title = 'Title is required (at least 3 characters).';
-    if (!form.direction) errs.direction = 'Choose a direction.';
+    if (!form.direction) errs.direction = t('validation.direction');
     if (form.duration_days !== '' && (Number(form.duration_days) < 1 || Number(form.duration_days) > 365)) {
       errs.duration_days = 'Between 1 and 365 days.';
     }

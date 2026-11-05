@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../api/client';
 import { useSeo } from '../hooks/useSeo';
@@ -8,6 +9,7 @@ import DestinationCard from '../components/DestinationCard';
 const COUNTRY_OPTIONS = ['All', 'Sri Lanka', 'Italy'];
 
 export default function Destinations() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const countryParam = searchParams.get('country');
   const activeCountry = COUNTRY_OPTIONS.includes(countryParam) ? countryParam : 'All';
@@ -25,8 +27,8 @@ export default function Destinations() {
 
   // Debounce the search box so we do not fire a request per keystroke.
   useEffect(() => {
-    const t = setTimeout(() => setDebounced(query.trim()), 300);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setDebounced(query.trim()), 300);
+    return () => clearTimeout(timer);
   }, [query]);
 
   useEffect(() => {
@@ -70,7 +72,7 @@ export default function Destinations() {
       <section className="section section--tight section--warm">
         <div className="container">
           <Reveal>
-            <div className="eyebrow">Destinations</div>
+            <div className="eyebrow">{t('pages.destinations.title')}</div>
             <h1>Where we take you</h1>
             <p className="lead" style={{ marginTop: '0.9rem' }}>
               Places in both countries we build itineraries around, from the Cultural Triangle to

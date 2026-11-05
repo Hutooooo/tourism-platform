@@ -1,0 +1,25 @@
+/* Liquid Glass design‑tokens – light & dark variants */
+:root {
+  /* Glass base – transparent surface */
+  --glass-bg: rgba(255, 255, 255, 0.32);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+  --glass-blur: 12px;
+}
+
+/* Dark mode overrides – subtle tint and stronger border */
+.theme-dark {
+  --glass-bg: rgba(30, 30, 30, 0.48);
+  --glass-border: rgba(255, 255, 255, 0.28);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+}
+
+/* Utility class for a glass surface */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: var(--glass-shadow);
+}

@@ -1,5 +1,6 @@
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams, Link } from 'react-router-dom';
+import { useSettings } from '../context/SettingsContext';
 import { useSeo } from '../hooks/useSeo';
 import Reveal from '../components/Reveal';
 import DestinationCard from '../components/DestinationCard';
@@ -36,8 +37,16 @@ function RouteGraphic() {
 }
 
 export default function Home() {
-  const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const direction = searchParams.get('direction') || '';
+  const setParam = (key, value) => {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set(key, value);
+    else next.delete(key);
+    setSearchParams(next, { replace: true });
+  };
   const { settings, destinations, packages, destinationsByCountry, stats } = useSettings();
+  const { t } = useTranslation();
 
   useSeo({
     title: settings.brand_name,
@@ -66,8 +75,8 @@ export default function Home() {
         <div className="container">
           <Reveal>
             <div className="direction-pills">
-              <span className="pill pill--solid">Sri Lanka → Italy</span>
-              <span className="pill">Italy → Sri Lanka</span>
+              <span className={`pill ${direction === 'SL_TO_IT' ? 'pill--solid' : 'pill--outline'}`} onClick={() => setParam('direction', direction === 'SL_TO_IT' ? '' : 'SL_TO_IT')}>{t('home.pillSLtoIT')}</span>
+              <span className={`pill ${direction === 'IT_TO_SL' ? 'pill--solid' : 'pill--outline'}`} onClick={() => setParam('direction', direction === 'IT_TO_SL' ? '' : 'IT_TO_SL')}>{t('home.pillITtoSL')}</span>
             </div>
           </Reveal>
 
@@ -95,7 +104,7 @@ export default function Home() {
           <Reveal delay={320} stagger className="hero__stats">
             <div className="stat">
               <div className="stat__value">{stats.destinations}</div>
-              <div className="stat__label">Destinations</div>
+              <div className="stat__label">{t('stats.destinations')}</div>
             </div>
             <div className="stat">
               <div className="stat__value">{stats.packages}</div>
@@ -117,8 +126,8 @@ export default function Home() {
         <div className="container">
           <div className="section-head">
             <Reveal className="section-head__text">
-              <div className="eyebrow">Both directions</div>
-              <h2>Travel either way between Sri Lanka and Italy</h2>
+              <div className="eyebrow">{t('home.bothDirections')}</div>
+              <h2>{t('home.bothDirectionsDesc')}</h2>
               <p className="lead" style={{ marginTop: '0.9rem' }}>
                 Whether you are leaving the island for Europe or coming home the other direction, the
                 same team arranges the journey end to end.
@@ -130,7 +139,7 @@ export default function Home() {
             <Reveal variant="left">
               <div className="card" style={{ height: '100%' }}>
                 <div className="card__body" style={{ padding: 'clamp(24px, 3vw, 34px)' }}>
-                  <div className="eyebrow">Sri Lanka → Italy</div>
+                  <div className="eyebrow">{t('home.pillSLtoIT')}</div>
                   <h3 style={{ marginBottom: '0.7rem' }}>From the island to Europe</h3>
                   <p className="muted">
                     Holidays, family visits and longer stays in Italy — Rome, Florence, Venice, the
@@ -143,7 +152,7 @@ export default function Home() {
                   </ul>
                   <div style={{ marginTop: '1.5rem' }}>
                     <Link to="/packages?direction=SL_TO_IT" className="btn btn--outline">
-                      Tours to Italy
+                      {t('home.toursToItaly')}
                     </Link>
                   </div>
                 </div>
@@ -153,7 +162,7 @@ export default function Home() {
             <Reveal variant="right">
               <div className="card" style={{ height: '100%' }}>
                 <div className="card__body" style={{ padding: 'clamp(24px, 3vw, 34px)' }}>
-                  <div className="eyebrow">Italy → Sri Lanka</div>
+                  <div className="eyebrow">{t('home.pillITtoSL')}</div>
                   <h3 style={{ marginBottom: '0.7rem' }}>Back to the island</h3>
                   <p className="muted">
                     Sightseeing, safari and beach time across Sri Lanka, arranged for travellers
@@ -166,7 +175,7 @@ export default function Home() {
                   </ul>
                   <div style={{ marginTop: '1.5rem' }}>
                     <Link to="/packages?direction=IT_TO_SL" className="btn btn--outline">
-                      Tours to Sri Lanka
+                      {t('home.toursToSriLanka')}
                     </Link>
                   </div>
                 </div>
@@ -183,11 +192,11 @@ export default function Home() {
             <div className="section-head">
               <Reveal className="section-head__text">
                 <div className="eyebrow">Destinations</div>
-                <h2>Places we know well</h2>
+                <h2>{t('home.featuredDestinations')}</h2>
               </Reveal>
               <Reveal>
                 <Link to="/destinations" className="btn btn--outline">
-                  All destinations →
+                  {t('home.allDestinations')}
                 </Link>
               </Reveal>
             </div>

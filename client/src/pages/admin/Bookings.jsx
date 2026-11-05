@@ -36,8 +36,8 @@ export default function Bookings() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setDebounced(query.trim()), 300);
-    return () => clearTimeout(t);
+    const debounceTimer = setTimeout(() => setDebounced(query.trim()), 300);
+    return () => clearTimeout(debounceTimer);
   }, [query]);
 
   const load = useCallback(async () => {

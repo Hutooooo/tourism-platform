@@ -4,7 +4,10 @@ import { useSeo } from '../hooks/useSeo';
 import Reveal from '../components/Reveal';
 import ContactTiles from '../components/ContactTiles';
 
+import { useTranslation } from 'react-i18next';
+
 export default function About() {
+  const { t } = useTranslation();
   const { settings, stats } = useSettings();
 
   useSeo({
@@ -17,48 +20,26 @@ export default function About() {
       <section className="section section--tight section--warm">
         <div className="container">
           <Reveal>
-            <div className="eyebrow">About</div>
-            <h1>{settings.about_title}</h1>
-            <p className="lead" style={{ marginTop: '1rem' }}>
-              {settings.tagline}
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container split" style={{ alignItems: 'start' }}>
-          <Reveal variant="left">
-            <div className="prose">
-              <p className="lead">{settings.about_body}</p>
-
-              <h3>What we do</h3>
-              <p>
-                We arrange tourism services between Sri Lanka and Italy in both directions. That
-                covers planned itineraries for travellers who want a framework, and fully custom
-                trips for those who already know what they are after.
-              </p>
-              <p>
-                On the ground that means transport, guides and accommodation arranged for you, with
-                a single point of contact throughout. For the international leg we help with flight
-                planning and the document preparation that goes with it.
-              </p>
-
-              <h3>How it works</h3>
-              <ul className="feature-list">
-                <li>Tell us your dates, direction, and roughly what you want to see</li>
-                <li>We come back with a proposed itinerary and an honest price</li>
-                <li>You adjust it until it fits — nothing is fixed until you say so</li>
-                <li>We book, confirm and stay reachable throughout the trip</li>
-              </ul>
-
-              <h3>Why both directions</h3>
-              <p>
-                Travel between these two countries runs both ways: holidays out, family visits back,
-                longer stays either direction. Working both sides means the same person can answer
-                questions whether you are planning from Colombo, Rome or anywhere in between.
-              </p>
-            </div>
+            {t('about.heading')}
+                <h1>{settings.about_title}</h1>
+                <p className="lead" style={{ marginTop: '1rem' }}>
+                  {settings.tagline}
+                </p>
+                <h3>{t('about.whatWeDo')}</h3>
+                <p>
+                  {t('about.description')}
+                </p>
+                <h3>{t('about.howItWorks')}</h3>
+                <ul className="feature-list">
+                  <li>{t('about.feature1')}</li>
+                  <li>{t('about.feature2')}</li>
+                  <li>{t('about.feature3')}</li>
+                  <li>{t('about.feature4')}</li>
+                </ul>
+                <h3>{t('about.whyBoth')}</h3>
+                <p>
+                  {t('about.whyBothText')}
+                </p>
           </Reveal>
 
           <Reveal variant="right">
