@@ -10,7 +10,7 @@
  */
 
 const IMG = {
-  sigiriya: 'https://images.unsplash.com/photo-1586053143094-9dd0d6cec1ea?auto=format&fit=crop&w=1600&q=70',
+  sigiriya: 'https://unsplash.com/photos/an-aerial-view-of-a-rock-formation-in-the-middle-of-a-forest-bfdshIHD5Y4',
   ella: 'https://images.unsplash.com/photo-1566296314736-6eaac1ca0cb9?auto=format&fit=crop&w=1600&q=70',
   galle: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=1600&q=70',
   yala: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1600&q=70',
